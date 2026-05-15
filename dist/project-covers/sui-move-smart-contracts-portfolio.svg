@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Sui Move Smart Contracts Portfolio cover</title>
+  <desc id="desc">Logo cover for the Sui Move Smart Contracts Portfolio project.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#08101f"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <g transform="translate(180 210)">
+    <path d="M92 0C120 36 136 61 136 95C136 140 101 178 56 178S-24 140 -24 95C-24 61 -8 36 20 0C34 18 44 31 56 52C68 31 78 18 92 0Z" fill="none" stroke="url(#blue)" stroke-width="12"/>
+    <circle cx="56" cy="95" r="20" fill="#60a5fa" opacity="0.75"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="start">
+    <text x="340" y="240" font-size="48" font-weight="700" fill="#e5eefb">Smart Contracts Code Camp</text>
+    <text x="340" y="298" font-size="58" font-weight="800" fill="url(#blue)">Portfolio</text>
+    <text x="340" y="372" font-size="34" font-weight="500" fill="#90a3c4">Sui Move blockchain development showcase</text>
+  </g>
+  <rect x="340" y="410" width="500" height="6" rx="3" fill="url(#blue)" opacity="0.95"/>
+</svg>
