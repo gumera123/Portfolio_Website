@@ -84,7 +84,7 @@ const projects = [
     accent: 'emerald',
     cover: '/project-covers/higa-app.svg',
     coverClass: 'cover-higa',
-    repo: null
+    repo: 'https://github.com/Jaykerd123/HigaononTranslator'
   },
   {
     title: 'Sui Move Smart Contracts Portfolio',
@@ -106,7 +106,7 @@ const projects = [
     accent: 'emerald',
     cover: '/project-covers/cot-inventory-system.png',
     coverClass: 'cover-cot',
-    repo: null
+    repo: 'https://github.com/berttot/COT-Inventory-Management-System'
   }
 ];
 
