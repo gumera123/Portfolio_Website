@@ -72,7 +72,8 @@ const projects = [
     tech: ['React Native', 'Expo', 'Firebase Cloud Services'],
     accent: 'aqua',
     cover: '/project-covers/nsync-app.jpg',
-    coverClass: 'cover-nsync'
+    coverClass: 'cover-nsync',
+    repo: 'https://github.com/gumera123/NSyncTenantApp'
   },
   {
     title: 'Higa App',
@@ -82,7 +83,8 @@ const projects = [
     tech: ['Mobile UI', 'App Development', 'User Experience'],
     accent: 'emerald',
     cover: '/project-covers/higa-app.svg',
-    coverClass: 'cover-higa'
+    coverClass: 'cover-higa',
+    repo: null
   },
   {
     title: 'Sui Move Smart Contracts Portfolio',
@@ -92,7 +94,8 @@ const projects = [
     tech: ['Sui Move', 'Smart Contracts', 'Blockchain'],
     accent: 'aqua',
     cover: '/project-covers/sui-move-smart-contracts-portfolio.png',
-    coverClass: 'cover-sui'
+    coverClass: 'cover-sui',
+    repo: 'https://github.com/gumera123/DEVCONSUI_MoveCodeCamp2026_Level1_Gumera'
   },
   {
     title: 'COT Inventory System',
@@ -102,7 +105,8 @@ const projects = [
     tech: ['MongoDB', 'Express.js', 'React', 'Node.js'],
     accent: 'emerald',
     cover: '/project-covers/cot-inventory-system.png',
-    coverClass: 'cover-cot'
+    coverClass: 'cover-cot',
+    repo: null
   }
 ];
 
@@ -422,7 +426,7 @@ function Projects() {
                 ))}
               </div>
               <div className="project-actions">
-                <a className="button compact secondary" href="https://github.com/gumera123" target="_blank" rel="noreferrer">
+                <a className="button compact secondary" href={project.repo || 'https://github.com/gumera123'} target="_blank" rel="noreferrer">
                   <GitBranch size={17} /> Repository
                 </a>
                 <Link className="button compact ghost" to="/contact">
