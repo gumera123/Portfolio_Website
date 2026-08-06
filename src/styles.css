@@ -381,8 +381,7 @@ p {
 .skill-card,
 .project-card,
 .overview-card,
-.contact-panel,
-.contact-form {
+.contact-panel {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--panel);
@@ -423,8 +422,7 @@ p {
 
 .about-card,
 .experience-card,
-.contact-panel,
-.contact-form {
+.contact-panel {
   padding: 28px;
 }
 
@@ -466,8 +464,7 @@ p {
 
 .card-head h3,
 .project-body h3,
-.experience-card h3,
-.contact-form h3 {
+.experience-card h3 {
   margin: 0;
   font-size: 1.22rem;
 }
@@ -617,47 +614,6 @@ p {
   align-items: center;
   gap: 10px;
   color: var(--muted);
-}
-
-.contact-form {
-  display: grid;
-  gap: 16px;
-}
-
-.contact-form label {
-  display: grid;
-  gap: 8px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.contact-form input,
-.contact-form textarea {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 13px 14px;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.055);
-  outline: none;
-  resize: vertical;
-}
-
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border-color: var(--accent);
-}
-
-.form-success {
-  margin: 4px 0 0;
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.form-error {
-  margin: 4px 0 0;
-  color: #ff8f8f;
-  font-weight: 700;
 }
 
 .footer {

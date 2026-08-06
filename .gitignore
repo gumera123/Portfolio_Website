@@ -1,1 +1,8 @@
 node_modules
+dist
+.env
+.env.*
+vite.log
+vite.err.log
+npm-debug.log*
+.DS_Store

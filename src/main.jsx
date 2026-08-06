@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import {
-  HashRouter,
+  BrowserRouter,
   Link,
   NavLink,
   Route,
@@ -33,8 +33,6 @@ import {
   X
 } from 'lucide-react';
 import './styles.css';
-
-const contactEndpoint = import.meta.env.VITE_CONTACT_ENDPOINT || '/api/inquiry';
 
 const navItems = [
   { label: 'Home', href: '/' },
@@ -260,7 +258,7 @@ function Home() {
           <Link className="overview-card" to="/contact">
             <Mail />
             <h3>Recruiter Contact</h3>
-            <p>Direct email, GitHub profile, resume access, and a polished inquiry form.</p>
+            <p>Direct email, GitHub profile, and resume access.</p>
           </Link>
         </div>
       </section>
@@ -504,47 +502,6 @@ function Goals() {
 }
 
 function Contact() {
-  const formId = useMemo(() => `form-${Math.random().toString(36).slice(2)}`, []);
-  const [status, setStatus] = useState('idle');
-  const [errorMessage, setErrorMessage] = useState('');
-
-  async function handleInquirySubmit(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-
-    const formData = new FormData(form);
-    const payload = {
-      name: formData.get('name')?.toString().trim() || '',
-      email: formData.get('email')?.toString().trim() || '',
-      message: formData.get('message')?.toString().trim() || ''
-    };
-
-    setStatus('sending');
-    setErrorMessage('');
-
-    try {
-      const response = await fetch(contactEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Unable to send inquiry right now.');
-      }
-
-      setStatus('success');
-      form.reset();
-    } catch (error) {
-      setStatus('error');
-      setErrorMessage(error.message || 'Unable to send inquiry right now.');
-    }
-  }
-
   return (
     <section id="contact" className="section contact-section">
       <SectionIntro
@@ -560,26 +517,6 @@ function Contact() {
             Download Resume <Download size={18} />
           </a>
         </div>
-        <form className="contact-form" aria-labelledby={formId} onSubmit={handleInquirySubmit}>
-          <h3 id={formId}>Send a message</h3>
-          <label>
-            Name
-            <input type="text" name="name" placeholder="Your name" required />
-          </label>
-          <label>
-            Email
-            <input type="email" name="email" placeholder="you@example.com" required />
-          </label>
-          <label>
-            Message
-            <textarea name="message" rows="5" placeholder="Tell me about the opportunity" required />
-          </label>
-          <button className="button primary" type="submit">
-            {status === 'sending' ? 'Sending...' : 'Submit Inquiry'} <ArrowRight size={18} />
-          </button>
-          {status === 'success' && <p className="form-success">Your inquiry was sent successfully. I’ll reply to the email address you provided.</p>}
-          {status === 'error' && <p className="form-error">{errorMessage}</p>}
-        </form>
       </div>
     </section>
   );
@@ -597,7 +534,7 @@ function Footer() {
 export default App;
 
 createRoot(document.getElementById('root')).render(
-  <HashRouter>
+  <BrowserRouter>
     <App />
-  </HashRouter>
+  </BrowserRouter>
 );
