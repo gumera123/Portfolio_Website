@@ -711,6 +711,16 @@ p {
     height: 205px;
   }
 
+  .project-preview.cover-sui {
+    height: auto;
+  }
+
+  .project-preview.cover-sui .project-cover.cover-sui {
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+  }
+
   .footer {
     align-items: flex-start;
     flex-direction: column;

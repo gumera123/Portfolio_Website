@@ -404,7 +404,7 @@ function Projects() {
             viewport={{ once: true }}
             transition={{ delay: index * 0.08 }}
           >
-            <div className="project-preview">
+            <div className={`project-preview ${project.coverClass || ''}`.trim()}>
               <img
                 className={`project-cover ${project.coverClass || ''}`.trim()}
                 src={project.cover}
