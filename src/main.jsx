@@ -23,7 +23,7 @@ import {
   Mail,
   Menu,
   Moon,
-  Network,
+  Phone,
   Server,
   ShieldCheck,
   Sparkles,
@@ -240,7 +240,7 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
 
 function Home() {
   return (
-    <>
+    <div className="home-page">
       <Hero />
       <section className="section home-brief">
         <SectionIntro
@@ -266,23 +266,16 @@ function Home() {
           </Link>
         </div>
       </section>
-    </>
+    </div>
   );
 }
 
 function Hero() {
   return (
     <section id="home" className="hero section">
-      <div className="hero-visual" aria-hidden="true">
-        <motion.div className="code-orbit orbit-one" animate={{ y: [0, -12, 0] }} transition={{ repeat: Infinity, duration: 7 }}>
-          <TerminalSquare size={18} />
-          build --prod
-        </motion.div>
-        <motion.div className="code-orbit orbit-two" animate={{ y: [0, 12, 0] }} transition={{ repeat: Infinity, duration: 8 }}>
-          <Network size={18} />
-          api / deploy
-        </motion.div>
-        <div className="grid-glow" />
+      <div className="hero-visual">
+        <div className="grid-glow" aria-hidden="true" />
+        <ProfilePhoto />
       </div>
       <motion.div className="hero-content" initial="hidden" animate="show" variants={fadeUp}>
         <p className="eyebrow"><Sparkles size={16} /> BSIT Graduate</p>
@@ -311,6 +304,29 @@ function Hero() {
   );
 }
 
+function ProfilePhoto() {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  return (
+    <div className="profile-photo-shell">
+      {imageFailed ? (
+        <div className="profile-photo-fallback" role="img" aria-label="Jorry E. Gumera profile photo">
+          JG
+        </div>
+      ) : (
+        <img
+          className="profile-photo"
+          src="/profile.jpg"
+          alt="Jorry E. Gumera profile photo"
+          width="640"
+          height="640"
+          onError={() => setImageFailed(true)}
+        />
+      )}
+    </div>
+  );
+}
+
 function SectionIntro({ eyebrow, title, copy }) {
   return (
     <motion.div className="section-intro" initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }} variants={fadeUp}>
@@ -323,7 +339,7 @@ function SectionIntro({ eyebrow, title, copy }) {
 
 function About() {
   return (
-    <section id="about" className="section">
+    <section id="about" className="section about-page">
       <SectionIntro
         eyebrow="About"
         title="Full-stack developer with practical experience in web systems, IT troubleshooting, and user-centered solutions."
@@ -359,7 +375,7 @@ function About() {
 
 function Skills() {
   return (
-    <section id="skills" className="section alt-section">
+    <section id="skills" className="section alt-section skills-page">
       <SectionIntro eyebrow="Skills" title="Modern web, mobile, backend, and technical support capability." />
       <div className="skills-grid">
         {skillGroups.map((group, index) => {
@@ -392,7 +408,7 @@ function Skills() {
 
 function Projects() {
   return (
-    <section id="projects" className="section">
+    <section id="projects" className="section projects-page">
       <SectionIntro
         eyebrow="Projects"
         title="Scalable solutions built for production projects."
@@ -443,7 +459,7 @@ function Projects() {
 
 function Experience() {
   return (
-    <section id="experience" className="section alt-section">
+    <section id="experience" className="section alt-section experience-page">
       <SectionIntro eyebrow="Experience" title="Practical responsibility across technical and operational environments." />
       <div className="experience-grid">
         <ExperienceCard
@@ -484,7 +500,7 @@ function ExperienceCard({ icon: Icon, title, items }) {
 
 function Goals() {
   return (
-    <section id="goals" className="section">
+    <section id="goals" className="section goals-page">
       <SectionIntro eyebrow="Goals" title="Professional roadmap for the next stage of growth." />
       <div className="timeline">
         {goals.map((goal, index) => (
@@ -507,7 +523,7 @@ function Goals() {
 
 function Contact() {
   return (
-    <section id="contact" className="section contact-section">
+    <section id="contact" className="section contact-section contact-page">
       <SectionIntro
         eyebrow="Contact"
         title="Available for full-stack development opportunities."
@@ -516,7 +532,10 @@ function Contact() {
       <div className="contact-grid">
         <div className="contact-panel">
           <a href="mailto:gumerajorry00@gmail.com"><Mail size={18} /> gumerajorry00@gmail.com</a>
+          <a href="tel:+639383144573"><Phone size={18} /> 0938 314 4573</a>
           <a href="https://github.com/gumera123" target="_blank" rel="noreferrer"><GitBranch size={18} /> github.com/gumera123</a>
+          <a href="https://www.facebook.com/jorry.Eredera" target="_blank" rel="noreferrer"><ExternalLink size={18} /> facebook.com/jorry.Eredera</a>
+          <a href="https://www.linkedin.com/in/jorry-gumera-3a56b4385/?isSelfProfile=true" target="_blank" rel="noreferrer"><ExternalLink size={18} /> linkedin.com/in/jorry-gumera</a>
           <a className="button primary" href="/My_Resume.pdf" download>
             Download Resume <Download size={18} />
           </a>
