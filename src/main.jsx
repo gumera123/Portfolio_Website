@@ -38,6 +38,7 @@ const navItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Skills', href: '/skills' },
+  { label: 'Certificates', href: '/certificates' },
   { label: 'Projects', href: '/projects' },
   { label: 'Experience', href: '/experience' },
   { label: 'Goals', href: '/goals' },
@@ -110,6 +111,37 @@ const projects = [
   }
 ];
 
+const certificates = [
+  {
+    title: 'AI_Literacy_Certification.png',
+    file: '/certificates/AI_Literacy_Certification.png'
+  },
+  {
+    title: 'Certificate_of_Participation_Jorry_Gumera_page-0001.jpg',
+    file: '/certificates/Certificate_of_Participation_Jorry_Gumera_page-0001.jpg'
+  },
+  {
+    title: 'Computer_System_Servicing_NCII.png',
+    file: '/certificates/Computer_System_Servicing_NCII.png'
+  },
+  {
+    title: 'DEVCON_Certificate.png',
+    file: '/certificates/DEVCON_Certificate.png'
+  },
+  {
+    title: 'DIGI-MC_2025_Certificate.png',
+    file: '/certificates/DIGI-MC_2025_Certificate.png'
+  },
+  {
+    title: 'Netwoking_2_Certificate.png',
+    file: '/certificates/Netwoking_2_Certificate.png'
+  },
+  {
+    title: 'Wadhwani Foundation Certificate.jpg',
+    file: '/certificates/Wadhwani Foundation Certificate.jpg'
+  }
+];
+
 const goals = [
   'Build scalable, production-ready systems',
   'Advance backend architecture expertise',
@@ -157,6 +189,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/skills" element={<Skills />} />
+          <Route path="/certificates" element={<Certificates />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/experience" element={<Experience />} />
           <Route path="/goals" element={<Goals />} />
@@ -331,7 +364,7 @@ function SectionIntro({ eyebrow, title, copy }) {
   return (
     <motion.div className="section-intro" initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }} variants={fadeUp}>
       <p className="eyebrow">{eyebrow}</p>
-      <h2>{title}</h2>
+      {title && <h2>{title}</h2>}
       {copy && <p>{copy}</p>}
     </motion.div>
   );
@@ -448,6 +481,48 @@ function Projects() {
                 <Link className="button compact ghost" to="/contact">
                   <ExternalLink size={17} /> Live Demo
                 </Link>
+              </div>
+            </div>
+          </motion.article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Certificates() {
+  return (
+    <section id="certificates" className="section certificates-page">
+      <SectionIntro
+        eyebrow="Certificates"
+        title="Verified learning, technical certifications, and professional development."
+        copy="A collection of certificates, training completions, and professional development achievements."
+      />
+      <div className="project-grid">
+        {certificates.map((certificate, index) => (
+          <motion.article
+            className="project-card certificate-card"
+            key={certificate.title}
+            initial={{ opacity: 0, y: 26 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.08 }}
+          >
+            <div className="project-preview certificate-preview">
+              <img
+                className="project-cover certificate-cover"
+                src={certificate.file}
+                alt={certificate.title}
+                loading="lazy"
+              />
+            </div>
+            <div className="project-body">
+              <p className="project-tag">Certificate</p>
+              <h3>{certificate.title}</h3>
+              <div className="project-actions">
+                <a className="button compact secondary" href={certificate.file} target="_blank" rel="noreferrer">
+                  <ExternalLink size={17} /> View Certificate
+                </a>
               </div>
             </div>
           </motion.article>

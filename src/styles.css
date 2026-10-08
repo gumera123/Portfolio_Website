@@ -29,7 +29,7 @@
   --nav: rgba(247, 248, 251, 0.82);
 }
 
-:root:has(.home-page, .about-page, .skills-page, .projects-page, .experience-page, .goals-page, .contact-page) {
+:root:has(.home-page, .about-page, .skills-page, .certificates-page, .projects-page, .experience-page, .goals-page, .contact-page) {
   --bg: #120a06;
   --bg-soft: #24130d;
   --panel: rgba(79, 43, 28, 0.48);
@@ -43,7 +43,7 @@
   --nav: rgba(18, 10, 6, 0.88);
 }
 
-:root[data-theme='light']:has(.home-page, .about-page, .skills-page, .projects-page, .experience-page, .goals-page, .contact-page) {
+:root[data-theme='light']:has(.home-page, .about-page, .skills-page, .certificates-page, .projects-page, .experience-page, .goals-page, .contact-page) {
   --bg: #f1e5d8;
   --bg-soft: #e5d0bd;
   --panel: rgba(255, 249, 241, 0.72);
@@ -75,14 +75,14 @@ body {
   min-width: 320px;
 }
 
-body:has(.home-page, .about-page, .skills-page, .projects-page, .experience-page, .goals-page, .contact-page) {
+body:has(.home-page, .about-page, .skills-page, .certificates-page, .projects-page, .experience-page, .goals-page, .contact-page) {
   background:
     radial-gradient(circle at 78% 18%, rgba(159, 103, 68, 0.2), transparent 28rem),
     radial-gradient(circle at 12% 72%, rgba(216, 177, 132, 0.1), transparent 24rem),
     linear-gradient(180deg, var(--bg), var(--bg-soft));
 }
 
-body:has(.home-page, .about-page, .skills-page, .projects-page, .experience-page, .goals-page, .contact-page)::before {
+body:has(.home-page, .about-page, .skills-page, .certificates-page, .projects-page, .experience-page, .goals-page, .contact-page)::before {
   background-image:
     linear-gradient(rgba(216, 177, 132, 0.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(216, 177, 132, 0.045) 1px, transparent 1px);
@@ -241,6 +241,7 @@ textarea {
 .home-page .home-brief,
 .about-page,
 .skills-page,
+.certificates-page,
 .projects-page,
 .experience-page,
 .goals-page,
@@ -257,6 +258,9 @@ textarea {
 .skills-page h1,
 .skills-page h2,
 .skills-page h3,
+.certificates-page h1,
+.certificates-page h2,
+.certificates-page h3,
 .projects-page h1,
 .projects-page h2,
 .projects-page h3,
@@ -476,7 +480,8 @@ p {
 .skill-card,
 .project-card,
 .overview-card,
-.contact-panel {
+.contact-panel,
+.certificate-card {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--panel);
@@ -634,6 +639,21 @@ p {
 
 .project-body {
   padding: 26px;
+}
+
+.certificate-card {
+  transition: 0.25s ease;
+}
+
+.certificate-preview {
+  height: 220px;
+  background: linear-gradient(135deg, rgba(216, 177, 132, 0.16), rgba(159, 103, 68, 0.1));
+}
+
+.certificate-cover {
+  background: #fff;
+  object-fit: contain;
+  object-position: center;
 }
 
 .project-tag {
