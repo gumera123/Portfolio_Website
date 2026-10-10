@@ -63,6 +63,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -73,6 +74,7 @@ body {
     linear-gradient(180deg, var(--bg), var(--bg-soft));
   color: var(--text);
   min-width: 320px;
+  overflow-x: hidden;
 }
 
 body:has(.home-page, .about-page, .skills-page, .certificates-page, .projects-page, .experience-page, .goals-page, .contact-page) {
@@ -326,6 +328,55 @@ p {
   color: var(--muted);
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.75;
+}
+
+.availability-block {
+  display: flex;
+  align-items: center;
+  width: min(700px, 100%);
+  gap: 14px;
+  margin-top: 28px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 12px 30px var(--shadow);
+}
+
+.availability-indicator {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.availability-block strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.92rem;
+}
+
+.availability-block p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.availability-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.availability-link:hover {
+  color: var(--text);
 }
 
 .cta-row,
@@ -656,6 +707,115 @@ p {
   object-position: center;
 }
 
+.certificate-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.certificate-dialog {
+  display: flex;
+  width: min(100%, 960px);
+  max-height: min(88vh, 760px);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel-strong);
+  color: var(--text);
+  font-family: inherit;
+  box-shadow: 0 28px 90px var(--shadow);
+}
+
+.certificate-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 20px 18px 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.certificate-dialog-heading {
+  min-width: 0;
+}
+
+.certificate-dialog-kicker {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.certificate-dialog-header h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.certificate-dialog-close {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--muted);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.certificate-dialog-close:hover {
+  border-color: var(--accent);
+  background: var(--panel-strong);
+  color: var(--text);
+  transform: scale(1.03);
+}
+
+.certificate-dialog-close:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.certificate-dialog-content {
+  overflow: auto;
+  padding: clamp(20px, 4vw, 36px);
+  background:
+    radial-gradient(circle at 50% 0, rgba(216, 177, 132, 0.08), transparent 38%),
+    var(--bg);
+}
+
+.certificate-image-frame {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 16px 35px var(--shadow);
+}
+
+.certificate-image-frame img {
+  display: block;
+  width: min(100%, 680px);
+  height: auto;
+  margin: 0 auto;
+}
+
 .project-tag {
   margin-bottom: 8px;
   color: var(--accent) !important;
@@ -849,6 +1009,17 @@ p {
     width: 100%;
   }
 
+  .availability-block {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+  }
+
+  .availability-link {
+    width: 100%;
+    margin-left: 22px;
+  }
+
   .project-preview {
     height: 205px;
   }
@@ -867,4 +1038,22 @@ p {
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .certificate-modal {
+    padding: 10px;
+  }
+
+  .certificate-dialog {
+    max-height: 92vh;
+    border-radius: 14px;
+  }
+
+  .certificate-dialog-header {
+    padding: 16px;
+  }
+
+  .certificate-dialog-content {
+    padding: 16px 12px;
+  }
+
 }

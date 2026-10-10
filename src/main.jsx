@@ -36,13 +36,13 @@ import './styles.css';
 
 const navItems = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Skills', href: '/skills' },
-  { label: 'Certificates', href: '/certificates' },
-  { label: 'Projects', href: '/projects' },
-  { label: 'Experience', href: '/experience' },
-  { label: 'Goals', href: '/goals' },
-  { label: 'Contact', href: '/contact' }
+  { label: 'About', href: '/#about' },
+  { label: 'Skills', href: '/#skills' },
+  { label: 'Certificates', href: '/#certificates' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'Experience', href: '/#experience' },
+  { label: 'Goals', href: '/#goals' },
+  { label: 'Contact', href: '/#contact' }
 ];
 
 const skillGroups = [
@@ -117,12 +117,16 @@ const certificates = [
     file: '/certificates/AI_Literacy_Certification.png'
   },
   {
-    title: 'Certificate_of_Participation_Jorry_Gumera_page-0001.jpg',
-    file: '/certificates/Certificate_of_Participation_Jorry_Gumera_page-0001.jpg'
+    title: 'Certificate_of_Participation_Jorry_Gumera.png',
+    file: '/certificates/Certificate_of_Participation_Jorry_Gumera.png'
   },
   {
-    title: 'Computer_System_Servicing_NCII.png',
-    file: '/certificates/Computer_System_Servicing_NCII.png'
+    title: 'CCNA Switching Routing and Wireless Essentials.png',
+    file: '/certificates/CCNA Switching Routing and Wireless Essentials.png'
+  },
+  {
+    title: 'Computer Systems Servicing NC II',
+    file: '/certificates/Computer_System_Servicing_NCII.jpg'
   },
   {
     title: 'DEVCON_Certificate.png',
@@ -186,7 +190,12 @@ function App() {
       <ScrollToTop />
       <main>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              <Home />
+            }
+          />
           <Route path="/about" element={<About />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/certificates" element={<Certificates />} />
@@ -202,11 +211,19 @@ function App() {
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    if (hash) {
+      const section = document.getElementById(hash.slice(1));
+      if (section) {
+        window.requestAnimationFrame(() => section.scrollIntoView({ behavior: 'smooth' }));
+        return;
+      }
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [pathname]);
+  }, [pathname, hash]);
 
   return null;
 }
@@ -275,30 +292,13 @@ function Home() {
   return (
     <div className="home-page">
       <Hero />
-      <section className="section home-brief">
-        <SectionIntro
-          eyebrow="Portfolio Overview"
-          title="Dedicated to production-ready development, IT support, and scalable systems engineering."
-          copy="Feel free to inspect my background, skills, projects, experience, and contact details."
-        />
-        <div className="overview-grid">
-          <Link className="overview-card" to="/projects">
-            <Code2 />
-            <h3>Project Work</h3>
-            <p>Mobile collaboration tooling and deployed inventory management systems.</p>
-          </Link>
-          <Link className="overview-card" to="/skills">
-            <Server />
-            <h3>Technical Stack</h3>
-            <p>MERN, Laravel, React Native, Firebase, GitHub workflows, Linux, SSH, and deployment.</p>
-          </Link>
-          <Link className="overview-card" to="/contact">
-            <Mail />
-            <h3>Recruiter Contact</h3>
-            <p>Direct email, GitHub profile, and resume access.</p>
-          </Link>
-        </div>
-      </section>
+      <About />
+      <Skills />
+      <Certificates />
+      <Projects />
+      <Experience />
+      <Goals />
+      <Contact />
     </div>
   );
 }
@@ -317,19 +317,29 @@ function Hero() {
         <p className="hero-copy">
           Full-stack developer and IT support specialist focused on building scalable web and mobile applications, modern Laravel systems, and reliable user-centered solutions. Experienced in MERN stack development, deployment workflows, technical troubleshooting, and practical system management.
         </p>
+        <div className="availability-block" role="status">
+          <span className="availability-indicator" aria-hidden="true" />
+          <div>
+            <strong>Open to new opportunities</strong>
+            <p>Available for full-stack, backend, and IT support roles.</p>
+          </div>
+          <Link className="availability-link" to="/#contact">
+            Let&apos;s Work Together <ArrowRight size={16} />
+          </Link>
+        </div>
         <div className="cta-row">
-          <Link className="button primary" to="/projects">
+          <Link className="button primary" to="/#projects">
             View Projects <ArrowRight size={18} />
           </Link>
           <a className="button secondary" href="/My_Resume.pdf" download>
             Download Resume <Download size={18} />
           </a>
-          <Link className="button ghost" to="/contact">
+          <Link className="button ghost" to="/#contact">
             Contact Me <Mail size={18} />
           </Link>
         </div>
       </motion.div>
-      <Link className="scroll-cue" to="/about" aria-label="Open about page">
+      <Link className="scroll-cue" to="/#about" aria-label="Scroll to about section">
         <span>Explore</span>
         <ChevronDown size={20} />
       </Link>
@@ -478,7 +488,7 @@ function Projects() {
                 <a className="button compact secondary" href={project.repo || 'https://github.com/gumera123'} target="_blank" rel="noreferrer">
                   <GitBranch size={17} /> Repository
                 </a>
-                <Link className="button compact ghost" to="/contact">
+                <Link className="button compact ghost" to="/#contact">
                   <ExternalLink size={17} /> Live Demo
                 </Link>
               </div>
@@ -491,44 +501,117 @@ function Projects() {
 }
 
 function Certificates() {
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
+
+  useEffect(() => {
+    if (!selectedCertificate) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setSelectedCertificate(null);
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedCertificate]);
+
   return (
-    <section id="certificates" className="section certificates-page">
-      <SectionIntro
-        eyebrow="Certificates"
-        title="Verified learning, technical certifications, and professional development."
-        copy="A collection of certificates, training completions, and professional development achievements."
-      />
-      <div className="project-grid">
-        {certificates.map((certificate, index) => (
-          <motion.article
-            className="project-card certificate-card"
-            key={certificate.title}
-            initial={{ opacity: 0, y: 26 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.08 }}
-          >
-            <div className="project-preview certificate-preview">
-              <img
-                className="project-cover certificate-cover"
-                src={certificate.file}
-                alt={certificate.title}
-                loading="lazy"
-              />
-            </div>
-            <div className="project-body">
-              <p className="project-tag">Certificate</p>
-              <h3>{certificate.title}</h3>
-              <div className="project-actions">
-                <a className="button compact secondary" href={certificate.file} target="_blank" rel="noreferrer">
-                  <ExternalLink size={17} /> View Certificate
-                </a>
+    <>
+      <section id="certificates" className="section certificates-page">
+        <SectionIntro
+          eyebrow="Certificates"
+          title="Verified learning, technical certifications, and professional development."
+          copy="A collection of certificates, training completions, and professional development achievements."
+        />
+        <div className="project-grid">
+          {certificates.map((certificate, index) => (
+            <motion.article
+              className="project-card certificate-card"
+              key={certificate.title}
+              initial={{ opacity: 0, y: 26 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08 }}
+            >
+              <div className="project-preview certificate-preview">
+                <img
+                  className="project-cover certificate-cover"
+                  src={certificate.file}
+                  alt={certificate.title}
+                  loading="lazy"
+                />
               </div>
-            </div>
-          </motion.article>
-        ))}
-      </div>
-    </section>
+              <div className="project-body">
+                <p className="project-tag">Certificate</p>
+                <h3>{certificate.title.replace(/\.[^/.]+$/, '')}</h3>
+                <div className="project-actions">
+                  <button
+                    className="button compact secondary"
+                    type="button"
+                    onClick={() => setSelectedCertificate(certificate)}
+                  >
+                    <ExternalLink size={17} /> View Certificate
+                  </button>
+                </div>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+      <AnimatePresence>
+        {selectedCertificate && (
+          <motion.div
+            className="certificate-modal"
+            role="presentation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedCertificate(null)}
+          >
+            <motion.div
+              className="certificate-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="certificate-dialog-title"
+              initial={{ scale: 0.96, y: 18 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.96, y: 18 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="certificate-dialog-header">
+                <div className="certificate-dialog-heading">
+                  <span className="certificate-dialog-kicker">Certificate preview</span>
+                  <h2 id="certificate-dialog-title">
+                    {selectedCertificate.title.replace(/\.[^/.]+$/, '').replaceAll('_', ' ')}
+                  </h2>
+                </div>
+                <button
+                  className="certificate-dialog-close"
+                  type="button"
+                  aria-label="Close certificate"
+                  onClick={() => setSelectedCertificate(null)}
+                >
+                  <X size={28} />
+                </button>
+              </div>
+              <div className="certificate-dialog-content">
+                <div className="certificate-image-frame">
+                  <img src={selectedCertificate.file} alt={selectedCertificate.title} />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -611,6 +694,7 @@ function Contact() {
           <a href="https://github.com/gumera123" target="_blank" rel="noreferrer"><GitBranch size={18} /> github.com/gumera123</a>
           <a href="https://www.facebook.com/jorry.Eredera" target="_blank" rel="noreferrer"><ExternalLink size={18} /> facebook.com/jorry.Eredera</a>
           <a href="https://www.linkedin.com/in/jorry-gumera-3a56b4385/?isSelfProfile=true" target="_blank" rel="noreferrer"><ExternalLink size={18} /> linkedin.com/in/jorry-gumera</a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"><ExternalLink size={18} /> instagram.com</a>
           <a className="button primary" href="/My_Resume.pdf" download>
             Download Resume <Download size={18} />
           </a>
