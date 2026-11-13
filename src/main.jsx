@@ -18,37 +18,42 @@ import {
   Database,
   Download,
   ExternalLink,
+  FolderKanban,
   GitBranch,
   GraduationCap,
+  House,
   Mail,
   Menu,
   Moon,
   Phone,
+  ScrollText,
   Server,
   ShieldCheck,
   Sparkles,
   Sun,
+  Target,
   TerminalSquare,
+  UserRound,
   Wrench,
   X
 } from 'lucide-react';
 import './styles.css';
 
 const navItems = [
-  { label: 'Home', href: '/' },
-  { label: 'About', href: '/#about' },
-  { label: 'Skills', href: '/#skills' },
-  { label: 'Certificates', href: '/#certificates' },
-  { label: 'Projects', href: '/#projects' },
-  { label: 'Experience', href: '/#experience' },
-  { label: 'Goals', href: '/#goals' },
-  { label: 'Contact', href: '/#contact' }
+  { label: 'Home', href: '/', icon: House },
+  { label: 'About', href: '/#about', icon: UserRound },
+  { label: 'Skills', href: '/#skills', icon: Wrench },
+  { label: 'Certificates', href: '/#certificates', icon: ScrollText },
+  { label: 'Projects', href: '/#projects', icon: FolderKanban },
+  { label: 'Experience', href: '/#experience', icon: BriefcaseBusiness },
+  { label: 'Goals', href: '/#goals', icon: Target },
+  { label: 'Contact', href: '/#contact', icon: Mail }
 ];
 
 const skillGroups = [
   { title: 'Frontend', icon: Code2, skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Tailwind CSS'] },
   { title: 'Backend', icon: Server, skills: ['Node.js', 'Express.js', 'Laravel'] },
-  { title: 'Database', icon: Database, skills: ['MongoDB', 'MongoDB Atlas'] },
+  { title: 'Database', icon: Database, skills: ['MongoDB', 'MongoDB Atlas', 'Firebase', 'Supabase'] },
   { title: 'Deployment & Tools', icon: TerminalSquare, skills: ['Git', 'GitHub', 'Linux', 'SSH', 'Server Deployment'] },
   {
     title: 'Technical & Professional',
@@ -247,23 +252,41 @@ function Loader() {
 }
 
 function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
+  const { pathname, hash } = useLocation();
+  const isCurrentItem = (item) => {
+    if (pathname !== '/') return false;
+    return item.href === '/' ? !hash : item.href.endsWith(hash) && Boolean(hash);
+  };
+
   return (
     <header className="navbar">
-      <Link className="brand" to="/" aria-label="Jorry Gumera home">
-        <span>JG</span>
-    
-      </Link>
+      <div className="sidebar-top">
+        <Link className="brand" to="/" aria-label="Jorry Gumera home">
+          <img src="/logo.jpg" alt="Jorry Gumera logo" />
+          <span className="brand-copy">
+            <strong>Jorry Gumera</strong>
+            <small>PORTFOLIO</small>
+          </span>
+        </Link>
+        <button className="icon-button theme-toggle" onClick={onTheme} aria-label="Toggle color theme">
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+      </div>
+      <p className="nav-heading">Explore</p>
       <nav className="nav-links" aria-label="Primary navigation">
         {navItems.map((item) => (
-          <NavLink key={item.href} className={({ isActive }) => (isActive ? 'active' : '')} to={item.href}>
+          <NavLink
+            key={item.href}
+            className={isCurrentItem(item) ? 'active' : ''}
+            aria-current={isCurrentItem(item) ? 'page' : undefined}
+            to={item.href}
+          >
+            <item.icon size={17} aria-hidden="true" />
             {item.label}
           </NavLink>
         ))}
       </nav>
       <div className="nav-actions">
-        <button className="icon-button" onClick={onTheme} aria-label="Toggle color theme">
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
         <button className="icon-button mobile-only" onClick={onMenu} aria-label="Toggle menu">
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -277,7 +300,14 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
             exit={{ opacity: 0, y: -8 }}
           >
             {navItems.map((item) => (
-              <NavLink key={item.href} to={item.href} onClick={onCloseMenu}>
+              <NavLink
+                key={item.href}
+                className={isCurrentItem(item) ? 'active' : ''}
+                aria-current={isCurrentItem(item) ? 'page' : undefined}
+                to={item.href}
+                onClick={onCloseMenu}
+              >
+                <item.icon size={17} aria-hidden="true" />
                 {item.label}
               </NavLink>
             ))}
