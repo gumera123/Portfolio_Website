@@ -181,6 +181,25 @@ function App() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    const mobileViewport = window.matchMedia('(max-width: 980px)');
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const syncScrollLock = () => {
+      const shouldLock = menuOpen && mobileViewport.matches;
+      document.body.style.overflow = shouldLock ? 'hidden' : previousBodyOverflow;
+      document.documentElement.style.overflow = shouldLock ? 'hidden' : previousHtmlOverflow;
+    };
+
+    syncScrollLock();
+    mobileViewport.addEventListener('change', syncScrollLock);
+    return () => {
+      mobileViewport.removeEventListener('change', syncScrollLock);
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [menuOpen]);
+
   return (
     <>
       <AnimatePresence>{loading && <Loader />}</AnimatePresence>
@@ -287,13 +306,20 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
         ))}
       </nav>
       <div className="nav-actions">
-        <button className="icon-button mobile-only" onClick={onMenu} aria-label="Toggle menu">
+        <button
+          className="icon-button mobile-only"
+          onClick={onMenu}
+          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+        >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
       <AnimatePresence>
         {menuOpen && (
           <motion.nav
+            id="mobile-navigation"
             className="mobile-menu"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}

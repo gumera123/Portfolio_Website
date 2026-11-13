@@ -1051,6 +1051,7 @@ p {
 
   .theme-toggle {
     margin-left: auto;
+    margin-right: 12px;
   }
 
   main,
@@ -1089,6 +1090,7 @@ p {
     max-height: calc(100dvh - 88px);
     overflow-y: auto;
     overscroll-behavior: contain;
+    touch-action: pan-y;
     gap: 4px;
     padding: 12px;
     border: 1px solid var(--line);
