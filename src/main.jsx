@@ -4,7 +4,6 @@ import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import {
   BrowserRouter,
   Link,
-  NavLink,
   Route,
   Routes,
   useLocation
@@ -22,10 +21,13 @@ import {
   GitBranch,
   GraduationCap,
   House,
+  ListChecks,
   Mail,
   Menu,
   Moon,
+  Pencil,
   Phone,
+  Plus,
   ScrollText,
   Server,
   ShieldCheck,
@@ -33,10 +35,16 @@ import {
   Sun,
   Target,
   TerminalSquare,
+  Trash2,
   UserRound,
   Wrench,
   X
 } from 'lucide-react';
+import { AdminAuthProvider, useAdminAuth } from './components/AdminAuthContext.jsx';
+import AdminPage from './components/AdminPage.jsx';
+import { AdminCardMenu, AdminEditButton, PortfolioAdminProvider } from './components/PortfolioAdmin.jsx';
+import { DEFAULT_PORTFOLIO_CONTENT, validatePortfolioContent } from './data/portfolioContent.js';
+import { supabase } from './lib/supabase.js';
 import './styles.css';
 
 const navItems = [
@@ -50,114 +58,17 @@ const navItems = [
   { label: 'Contact', href: '/#contact', icon: Mail }
 ];
 
-const skillGroups = [
-  { title: 'Frontend', icon: Code2, skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Tailwind CSS'] },
-  { title: 'Backend', icon: Server, skills: ['Node.js', 'Express.js', 'Laravel'] },
-  { title: 'Database', icon: Database, skills: ['MongoDB', 'MongoDB Atlas', 'Firebase', 'Supabase'] },
-  { title: 'Deployment & Tools', icon: TerminalSquare, skills: ['Git', 'GitHub', 'Linux', 'SSH', 'Server Deployment'] },
-  {
-    title: 'Technical & Professional',
-    icon: Wrench,
-    skills: [
-      'Technical Troubleshooting',
-      'System Debugging',
-      'Documentation',
-      'Team Collaboration',
-      'Hardware & Software Support',
-      'Computer Systems Servicing (CSS NC II)'
-    ]
-  }
-];
-
-const projects = [
-  {
-    title: 'NSync App',
-    tag: 'Mobile Collaboration Platform',
-    description:
-      'A full-stack mobile application for collaboration and productivity designed to help teams manage tasks, organize workflows, track progress, and improve communication in real time.',
-    tech: ['React Native', 'Expo', 'Firebase Cloud Services'],
-    accent: 'aqua',
-    cover: '/project-covers/nsync-app.jpg',
-    coverClass: 'cover-nsync',
-    repo: 'https://github.com/gumera123/NSyncTenantApp'
-  },
-  {
-    title: 'Higa App',
-    tag: 'Mobile App Experience',
-    description:
-      'A mobile application project focused on delivering a clean, practical user experience with an emphasis on fast access to core features and smooth everyday use.',
-    tech: ['Mobile UI', 'App Development', 'User Experience'],
-    accent: 'emerald',
-    cover: '/project-covers/higa-app.svg',
-    coverClass: 'cover-higa',
-    repo: 'https://github.com/Jaykerd123/HigaononTranslator'
-  },
-  {
-    title: 'Sui Move Smart Contracts Portfolio',
-    tag: 'Blockchain Development',
-    description:
-      'A portfolio project highlighting smart contract work built around the Sui Move ecosystem, showing practical blockchain development skills and on-chain logic.',
-    tech: ['Sui Move', 'Smart Contracts', 'Blockchain'],
-    accent: 'aqua',
-    cover: '/project-covers/sui-move-smart-contracts-portfolio.png',
-    coverClass: 'cover-sui',
-    repo: 'https://github.com/gumera123/DEVCONSUI_MoveCodeCamp2026_Level1_Gumera'
-  },
-  {
-    title: 'COT Inventory System',
-    tag: 'Live Inventory Management',
-    description:
-      'A deployed inventory management platform designed for product tracking, reporting, and record management in a live server environment.',
-    tech: ['MongoDB', 'Express.js', 'React', 'Node.js'],
-    accent: 'emerald',
-    cover: '/project-covers/cot-inventory-system.png',
-    coverClass: 'cover-cot',
-    repo: 'https://github.com/berttot/COT-Inventory-Management-System'
-  }
-];
-
-const certificates = [
-  {
-    title: 'AI_Literacy_Certification.png',
-    file: '/certificates/AI_Literacy_Certification.png'
-  },
-  {
-    title: 'Certificate_of_Participation_Jorry_Gumera.png',
-    file: '/certificates/Certificate_of_Participation_Jorry_Gumera.png'
-  },
-  {
-    title: 'CCNA Switching Routing and Wireless Essentials.png',
-    file: '/certificates/CCNA Switching Routing and Wireless Essentials.png'
-  },
-  {
-    title: 'Computer Systems Servicing NC II',
-    file: '/certificates/Computer_System_Servicing_NCII.jpg'
-  },
-  {
-    title: 'DEVCON_Certificate.png',
-    file: '/certificates/DEVCON_Certificate.png'
-  },
-  {
-    title: 'DIGI-MC_2025_Certificate.png',
-    file: '/certificates/DIGI-MC_2025_Certificate.png'
-  },
-  {
-    title: 'Netwoking_2_Certificate.png',
-    file: '/certificates/Netwoking_2_Certificate.png'
-  },
-  {
-    title: 'Wadhwani Foundation Certificate.jpg',
-    file: '/certificates/Wadhwani Foundation Certificate.jpg'
-  }
-];
-
-const goals = [
-  'Build scalable, production-ready systems',
-  'Advance backend architecture expertise',
-  'Improve DevOps and deployment practices',
-  'Gain professional software engineering experience',
-  'Continue growing as a full-stack developer'
-];
+const skillIcons = {
+  code: Code2,
+  server: Server,
+  database: Database,
+  terminal: TerminalSquare,
+  wrench: Wrench
+};
+const aboutIcons = { graduation: GraduationCap, shield: ShieldCheck };
+const experienceIcons = { briefcase: BriefcaseBusiness, check: CheckCircle2 };
+const contactIcons = { mail: Mail, phone: Phone, github: GitBranch, external: ExternalLink };
+const isPdfAsset = (path) => /\.pdf(?:$|[?#])/i.test(path);
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -165,20 +76,71 @@ const fadeUp = {
 };
 
 function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('portfolio-theme') || 'light');
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [content, setContent] = useState(DEFAULT_PORTFOLIO_CONTENT);
+  const [contentError, setContentError] = useState('');
+  const { isAdmin, signOut } = useAdminAuth();
+  const { pathname } = useLocation();
+  const isAdminPage = pathname === '/admin' || pathname === '/admin/';
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 130, damping: 28, restDelta: 0.001 });
+  const handleContentSaved = (nextContent) => {
+    setContent(nextContent);
+    setContentError('');
+  };
+  const resumeEditor = {
+    title: 'Update resume',
+    mode: 'resume',
+    value: { resume: content.resume },
+    commit: (edited, current) => ({ ...current, resume: edited.resume })
+  };
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('portfolio-theme', theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',
+      theme === 'dark' ? '#0F0E0A' : '#EDEAE4'
+    );
   }, [theme]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setLoading(false), 900);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+
+    let active = true;
+    supabase
+      .from('portfolio_content')
+      .select('content')
+      .eq('id', 1)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          setContentError(`Portfolio content could not be loaded: ${error.message}`);
+          console.error('Portfolio content could not be loaded:', error);
+          return;
+        }
+        if (!data) return;
+        const validationError = validatePortfolioContent(data.content);
+        if (validationError) {
+          setContentError(`Saved portfolio content is invalid: ${validationError}`);
+          console.error('Saved portfolio content is invalid:', validationError);
+          return;
+        }
+        setContent(data.content);
+        setContentError('');
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -201,36 +163,57 @@ function App() {
   }, [menuOpen]);
 
   return (
+    <PortfolioAdminProvider isAdmin={isAdmin} content={content} onContentSaved={handleContentSaved}>
     <>
-      <AnimatePresence>{loading && <Loader />}</AnimatePresence>
-      <motion.div className="scroll-progress" style={{ scaleX: progress }} />
-      <Navbar
-        theme={theme}
-        menuOpen={menuOpen}
-        onMenu={() => setMenuOpen((value) => !value)}
-        onCloseMenu={() => setMenuOpen(false)}
-        onTheme={() => setTheme((value) => (value === 'dark' ? 'light' : 'dark'))}
-      />
-      <ScrollToTop />
-      <main>
+      {!isAdminPage && <AnimatePresence>{loading && <Loader />}</AnimatePresence>}
+      {!isAdminPage && <motion.div className="scroll-progress" style={{ scaleX: progress }} />}
+      {!isAdminPage && isAdmin && <AdminModeBanner onSignOut={signOut} resumeEditor={resumeEditor} />}
+      {!isAdminPage && (
+        <Navbar
+          content={content}
+          theme={theme}
+          menuOpen={menuOpen}
+          onMenu={() => setMenuOpen((value) => !value)}
+          onCloseMenu={() => setMenuOpen(false)}
+          onTheme={() => setTheme((value) => (value === 'dark' ? 'light' : 'dark'))}
+        />
+      )}
+      {!isAdminPage && <ScrollToTop />}
+      <main className={isAdminPage ? 'admin-main' : ''}>
+        {!isAdminPage && contentError && <p className="content-error" role="alert">{contentError}</p>}
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Home />
-            }
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="/skills" element={<Skills />} />
-          <Route path="/certificates" element={<Certificates />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/experience" element={<Experience />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/" element={<Home content={content} />} />
+          <Route path="/about" element={<About content={content} />} />
+          <Route path="/skills" element={<Skills content={content} />} />
+          <Route path="/certificates" element={<Certificates content={content} />} />
+          <Route path="/projects" element={<Projects content={content} />} />
+          <Route path="/experience" element={<Experience content={content} />} />
+          <Route path="/goals" element={<Goals content={content} />} />
+          <Route path="/contact" element={<Contact content={content} />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
-      <Footer />
+      {!isAdminPage && <Footer content={content} />}
     </>
+    </PortfolioAdminProvider>
+  );
+}
+
+function AdminModeBanner({ onSignOut, resumeEditor }) {
+  const [error, setError] = useState('');
+
+  const handleSignOut = async () => {
+    const result = await onSignOut();
+    if (result.error) setError(`Sign out failed: ${result.error.message}`);
+  };
+
+  return (
+    <div className="admin-mode-banner">
+      <span>Admin preview</span>
+      {error && <span role="alert">{error}</span>}
+      <AdminEditButton editor={resumeEditor} showOnHome>Update resume</AdminEditButton>
+      <button type="button" onClick={handleSignOut}>Sign out</button>
+    </div>
   );
 }
 
@@ -264,27 +247,31 @@ function Loader() {
         JG
       </motion.div>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-        Preparing jorrygumera.com
+        Welcome to My Portfolio
       </motion.p>
     </motion.div>
   );
 }
 
-function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
+function Navbar({ content, theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
   const { pathname, hash } = useLocation();
   const isCurrentItem = (item) => {
-    if (pathname !== '/') return false;
-    return item.href === '/' ? !hash : item.href.endsWith(hash) && Boolean(hash);
+    if (item.href === '/') return pathname === '/' && !hash;
+    const section = item.href.split('#')[1];
+    return Boolean(section) && (
+      (pathname === '/' && hash === `#${section}`) ||
+      pathname === `/${section}`
+    );
   };
 
   return (
     <header className="navbar">
       <div className="sidebar-top">
         <Link className="brand" to="/" aria-label="Jorry Gumera home">
-          <img src="/logo.jpg" alt="Jorry Gumera logo" />
+          <img src={content.brand.logo} alt={`${content.brand.name} logo`} />
           <span className="brand-copy">
-            <strong>Jorry Gumera</strong>
-            <small>PORTFOLIO</small>
+            <strong>{content.brand.name}</strong>
+            <small>{content.brand.subtitle}</small>
           </span>
         </Link>
         <button className="icon-button theme-toggle" onClick={onTheme} aria-label="Toggle color theme">
@@ -294,7 +281,7 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
       <p className="nav-heading">Explore</p>
       <nav className="nav-links" aria-label="Primary navigation">
         {navItems.map((item) => (
-          <NavLink
+          <Link
             key={item.href}
             className={isCurrentItem(item) ? 'active' : ''}
             aria-current={isCurrentItem(item) ? 'page' : undefined}
@@ -302,7 +289,7 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
           >
             <item.icon size={17} aria-hidden="true" />
             {item.label}
-          </NavLink>
+          </Link>
         ))}
       </nav>
       <div className="nav-actions">
@@ -326,7 +313,7 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
             exit={{ opacity: 0, y: -8 }}
           >
             {navItems.map((item) => (
-              <NavLink
+              <Link
                 key={item.href}
                 className={isCurrentItem(item) ? 'active' : ''}
                 aria-current={isCurrentItem(item) ? 'page' : undefined}
@@ -335,7 +322,7 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
               >
                 <item.icon size={17} aria-hidden="true" />
                 {item.label}
-              </NavLink>
+              </Link>
             ))}
           </motion.nav>
         )}
@@ -344,40 +331,95 @@ function Navbar({ theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
   );
 }
 
-function Home() {
+function Home({ content }) {
   return (
     <div className="home-page">
-      <Hero />
-      <About />
-      <Skills />
-      <Certificates />
-      <Projects />
-      <Experience />
-      <Goals />
-      <Contact />
+      <Hero content={content} />
+      <About content={content} />
+      <Skills content={content} />
+      <Certificates content={content} />
+      <Projects content={content} />
+      <Experience content={content} />
+      <Goals content={content} />
+      <Contact content={content} />
     </div>
   );
 }
 
-function Hero() {
+function Hero({ content }) {
+  const profileImageEditor = {
+    title: 'Profile picture',
+    mode: 'profile-photo',
+    value: { profileImage: content.profileImage },
+    commit: (edited, current) => ({ ...current, profileImage: edited.profileImage })
+  };
+  const eyebrowEditor = {
+    title: 'Role eyebrow',
+    value: { eyebrow: content.hero.eyebrow },
+    commit: (edited, current) => ({
+      ...current,
+      hero: { ...current.hero, eyebrow: edited.eyebrow }
+    })
+  };
+  const roleEditor = {
+    title: 'Role',
+    value: { role: content.hero.role },
+    commit: (edited, current) => ({
+      ...current,
+      hero: { ...current.hero, role: edited.role }
+    })
+  };
+  const summaryEditor = {
+    title: 'Summary',
+    value: { summary: content.hero.summary },
+    commit: (edited, current) => ({
+      ...current,
+      hero: { ...current.hero, summary: edited.summary }
+    })
+  };
+  const displayName = content.hero.name
+    .trim()
+    .toLocaleLowerCase()
+    .replace(/\b[a-z]/g, (letter) => letter.toLocaleUpperCase());
+  const [firstName, ...remainingName] = displayName.split(/\s+/);
+  const middleInitial = /^[A-Z]\.$/.test(remainingName[0] ?? '') ? remainingName[0] : null;
+  const lastName = remainingName.slice(middleInitial ? 1 : 0);
+
   return (
     <section id="home" className="hero section">
       <div className="hero-visual">
         <div className="grid-glow" aria-hidden="true" />
-        <ProfilePhoto />
+        <ProfilePhoto src={content.profileImage} />
+        <div className="hero-photo-edit">
+          <AdminEditButton editor={profileImageEditor} showOnHome>Edit photo</AdminEditButton>
+        </div>
       </div>
       <motion.div className="hero-content" initial="hidden" animate="show" variants={fadeUp}>
-        <p className="eyebrow"><Sparkles size={16} /> BSIT Graduate</p>
-        <h1>JORRY E. GUMERA</h1>
-        <h2>Full-Stack Developer/ IT Assistant</h2>
-        <p className="hero-copy">
-          Full-stack developer and IT support specialist focused on building scalable web and mobile applications, modern Laravel systems, and reliable user-centered solutions. Experienced in MERN stack development, deployment workflows, technical troubleshooting, and practical system management.
-        </p>
+        <div className="hero-eyebrow-row">
+          <p className="eyebrow"><Sparkles size={16} /> {content.hero.eyebrow}</p>
+          <AdminEditButton editor={eyebrowEditor} showOnHome>Edit eyebrow</AdminEditButton>
+        </div>
+        <h1>
+          <span className="hero-name-first">
+            {firstName}{middleInitial ? ` ${middleInitial}` : ''}
+          </span>
+          {lastName.length > 0 && (
+            <span className="hero-name-last">{lastName.join(' ')}</span>
+          )}
+        </h1>
+        <div className="hero-role-row">
+          <h2>{content.hero.role}</h2>
+          <AdminEditButton editor={roleEditor} showOnHome>Edit role</AdminEditButton>
+        </div>
+        <div className="hero-summary-row">
+          <p className="hero-copy">{content.hero.summary}</p>
+          <AdminEditButton editor={summaryEditor} showOnHome>Edit summary</AdminEditButton>
+        </div>
         <div className="availability-block" role="status">
           <span className="availability-indicator" aria-hidden="true" />
           <div>
-            <strong>Open to new opportunities</strong>
-            <p>Available for full-stack, backend, and IT support roles.</p>
+            <strong>{content.hero.availabilityTitle}</strong>
+            <p>{content.hero.availabilityText}</p>
           </div>
           <Link className="availability-link" to="/#contact">
             Let&apos;s Work Together <ArrowRight size={16} />
@@ -387,7 +429,7 @@ function Hero() {
           <Link className="button primary" to="/#projects">
             View Projects <ArrowRight size={18} />
           </Link>
-          <a className="button secondary" href="/My_Resume.pdf" download>
+          <a className="button secondary" href={content.resume} download>
             Download Resume <Download size={18} />
           </a>
           <Link className="button ghost" to="/#contact">
@@ -403,8 +445,10 @@ function Hero() {
   );
 }
 
-function ProfilePhoto() {
+function ProfilePhoto({ src }) {
   const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => setImageFailed(false), [src]);
 
   return (
     <div className="profile-photo-shell">
@@ -415,7 +459,7 @@ function ProfilePhoto() {
       ) : (
         <img
           className="profile-photo"
-          src="/profile.jpg"
+          src={src}
           alt="Jorry E. Gumera profile photo"
           width="640"
           height="640"
@@ -426,59 +470,134 @@ function ProfilePhoto() {
   );
 }
 
-function SectionIntro({ eyebrow, title, copy }) {
+function SectionIntro({ eyebrow, title, copy, adminEditor }) {
   return (
     <motion.div className="section-intro" initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }} variants={fadeUp}>
       <p className="eyebrow">{eyebrow}</p>
       {title && <h2>{title}</h2>}
       {copy && <p>{copy}</p>}
+      {adminEditor && (
+        <AdminEditButton editor={adminEditor} showOnHome>
+          {adminEditor.buttonLabel}
+        </AdminEditButton>
+      )}
     </motion.div>
   );
 }
 
-function About() {
+function About({ content }) {
+  const { eyebrow, title, copy } = content.sections.about;
+  const editor = {
+    title: 'Edit About section',
+    buttonLabel: 'Edit About',
+    showOnHome: true,
+    value: content.sections.about,
+    commit: (edited, current) => ({
+      ...current,
+      sections: { ...current.sections, about: edited }
+    })
+  };
   return (
     <section id="about" className="section about-page">
-      <SectionIntro
-        eyebrow="About"
-        title="Full-stack developer with practical experience in web systems, IT troubleshooting, and user-centered solutions."
-        copy="Focused on building reliable software, creating user-centered experiences, and continuously improving technical skills through real-world practice."
-      />
+      <SectionIntro eyebrow={eyebrow} title={title} copy={copy} adminEditor={editor} />
       <div className="about-grid">
-        <motion.article className="glass-panel about-card" initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
-          <GraduationCap />
-          <p>
-            Jorry E. Gumera is a Bachelor of Science in Information Technology graduate with hands-on experience in
-            full-stack development, mobile application development, and modern web systems.
-          </p>
-          <p>
-            He has developed multiple real-world projects including inventory management systems, mobile applications,
-            and web-based platforms using modern technologies and collaborative development practices.
-          </p>
-        </motion.article>
-        <motion.article className="glass-panel about-card" initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
-          <ShieldCheck />
-          <p>
-            His technical experience includes MERN stack development, GitHub workflows, frontend and backend
-            development, deployment processes, system debugging, technical troubleshooting, and project documentation.
-          </p>
-          <p>
-            He is also a CSS NC II certificate holder, strengthening his practical knowledge in computer systems
-            servicing, hardware troubleshooting, networking fundamentals, and technical support.
-          </p>
-        </motion.article>
+        {content.aboutCards.map((card, index) => {
+          const Icon = aboutIcons[card.icon] || UserRound;
+          const cardEditor = {
+            title: `Edit About card ${index + 1}`,
+            mode: 'about-card',
+            value: { paragraphs: [...card.paragraphs] },
+            commit: (edited, current) => ({
+              ...current,
+              aboutCards: current.aboutCards.map((item, itemIndex) => (
+                itemIndex === index ? { ...item, paragraphs: edited.paragraphs } : item
+              ))
+            })
+          };
+          const actions = [
+            { label: 'Edit Card', editor: cardEditor, icon: Pencil }
+          ];
+          return (
+            <motion.article className="glass-panel about-card" key={`${card.icon}-${index}`} initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
+              <div className="about-card-toolbar">
+                <Icon aria-hidden="true" />
+                <AdminCardMenu actions={actions} label={`About card ${index + 1}`} showOnHome />
+              </div>
+              {card.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
+            </motion.article>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function Skills() {
+function Skills({ content }) {
+  const { eyebrow, title } = content.sections.skills;
+  const addCardEditor = {
+    title: 'Add skill card',
+    value: { title: '' },
+    commit: (edited, current) => ({
+      ...current,
+      skills: [...current.skills, { title: edited.title, icon: 'wrench', skills: [] }]
+    })
+  };
   return (
     <section id="skills" className="section alt-section skills-page">
-      <SectionIntro eyebrow="Skills" title="Modern web, mobile, backend, and technical support capability." />
+      <SectionIntro eyebrow={eyebrow} title={title} />
+      <div className="skills-add-toolbar">
+        <AdminEditButton editor={addCardEditor} showOnHome icon={Plus}>Add Card</AdminEditButton>
+      </div>
       <div className="skills-grid">
-        {skillGroups.map((group, index) => {
-          const Icon = group.icon;
+        {content.skills.map((group, index) => {
+          const Icon = skillIcons[group.icon] || Wrench;
+          const editCardEditor = {
+            title: `Edit ${group.title} card`,
+            value: { title: group.title },
+            commit: (edited, current) => ({
+              ...current,
+              skills: current.skills.map((item, itemIndex) => (
+                itemIndex === index ? { ...item, title: edited.title } : item
+              ))
+            })
+          };
+          const addSkillEditor = {
+            title: `Add skill to ${group.title}`,
+            value: { skill: '' },
+            commit: (edited, current) => ({
+              ...current,
+              skills: current.skills.map((item, itemIndex) => (
+                itemIndex === index
+                  ? { ...item, skills: [...item.skills, edited.skill] }
+                  : item
+              ))
+            })
+          };
+          const editSkillsEditor = {
+            title: `Edit skills in ${group.title}`,
+            value: { skills: [...group.skills] },
+            commit: (edited, current) => ({
+              ...current,
+              skills: current.skills.map((item, itemIndex) => (
+                itemIndex === index ? { ...item, skills: edited.skills } : item
+              ))
+            })
+          };
+          const deleteCardEditor = {
+            title: `Delete ${group.title} card?`,
+            mode: 'delete',
+            value: {},
+            commit: (_edited, current) => ({
+              ...current,
+              skills: current.skills.filter((_item, itemIndex) => itemIndex !== index)
+            })
+          };
+          const actions = [
+            { label: 'Add Skill', editor: addSkillEditor, icon: Plus },
+            { label: 'Edit Card Name', editor: editCardEditor, icon: Pencil },
+            { label: 'Edit Skills', editor: editSkillsEditor, icon: ListChecks },
+            { label: 'Delete Card', editor: deleteCardEditor, icon: Trash2, danger: true }
+          ];
           return (
             <motion.article
               className="skill-card"
@@ -488,13 +607,14 @@ function Skills() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.06 }}
             >
-              <div className="card-head">
+              <AdminCardMenu actions={actions} label={group.title} showOnHome />
+              <div className="card-head skill-card-heading">
                 <Icon size={22} />
                 <h3>{group.title}</h3>
               </div>
               <div className="skill-pills">
-                {group.skills.map((skill) => (
-                  <span key={skill}>{skill}</span>
+                {group.skills.map((skill, skillIndex) => (
+                  <span key={`${skill}-${skillIndex}`}>{skill}</span>
                 ))}
               </div>
             </motion.article>
@@ -505,59 +625,161 @@ function Skills() {
   );
 }
 
-function Projects() {
+function Projects({ content }) {
+  const { eyebrow, title, copy } = content.sections.projects;
+  const addProjectEditor = {
+    title: 'Add project',
+    mode: 'project-add',
+    value: { title: '', description: '', tech: '', repo: '', demo: '' },
+    commit: (edited, current) => ({
+      ...current,
+      projects: [
+        ...current.projects,
+        {
+          title: edited.title.trim(),
+          tag: 'Project',
+          description: edited.description.trim(),
+          tech: edited.tech.split(',').map((item) => item.trim()).filter(Boolean),
+          accent: 'aqua',
+          cover: edited.cover,
+          coverClass: '',
+          repo: edited.repo.trim(),
+          demo: edited.demo.trim()
+        }
+      ]
+    })
+  };
+  const editor = {
+    title: 'Edit Projects Page',
+    buttonLabel: 'Edit Page Section',
+    value: content.sections.projects,
+    commit: (edited, current) => ({
+      ...current,
+      sections: { ...current.sections, projects: edited }
+    })
+  };
   return (
     <section id="projects" className="section projects-page">
-      <SectionIntro
-        eyebrow="Projects"
-        title="Scalable solutions built for production projects."
-        copy="Engineering high-impact applications and reliable systems with a focus on stability and business growth."
-      />
+      <SectionIntro eyebrow={eyebrow} title={title} copy={copy} adminEditor={editor} />
+      <div className="projects-add-toolbar">
+        <AdminEditButton editor={addProjectEditor} icon={Plus} showOnHome>Add Project</AdminEditButton>
+      </div>
       <div className="project-grid">
-        {projects.map((project, index) => (
-          <motion.article
-            className={`project-card ${project.accent}`}
-            key={project.title}
-            initial={{ opacity: 0, y: 26 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.08 }}
-          >
-            <div className={`project-preview ${project.coverClass || ''}`.trim()}>
-              <img
-                className={`project-cover ${project.coverClass || ''}`.trim()}
-                src={project.cover}
-                alt={`${project.title} cover image`}
-                loading="lazy"
+        {content.projects.map((project, index) => {
+          const editProjectEditor = {
+            title: `Edit ${project.title}`,
+            mode: 'project-edit',
+            value: {
+              title: project.title,
+              description: project.description,
+              tech: project.tech.join(', '),
+              repo: project.repo || '',
+              demo: project.demo || '',
+              cover: project.cover
+            },
+            commit: (edited, current) => ({
+              ...current,
+              projects: current.projects.map((item, itemIndex) => (
+                itemIndex === index
+                  ? {
+                    ...item,
+                    title: edited.title.trim(),
+                    description: edited.description.trim(),
+                    tech: edited.tech.split(',').map((tech) => tech.trim()).filter(Boolean),
+                    repo: edited.repo.trim(),
+                    demo: edited.demo.trim(),
+                    cover: edited.cover
+                  }
+                  : item
+              ))
+            })
+          };
+          const deleteProjectEditor = {
+            title: `Delete ${project.title}?`,
+            mode: 'delete',
+            confirmationText: 'This will permanently delete this project from your portfolio.',
+            value: {},
+            commit: (_edited, current) => ({
+              ...current,
+              projects: current.projects.filter((_item, itemIndex) => itemIndex !== index)
+            })
+          };
+          return (
+            <motion.article
+              className={`project-card editable-project-card ${project.accent}`}
+              key={`${project.title}-${index}`}
+              initial={{ opacity: 0, y: 26 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08 }}
+            >
+              <AdminCardMenu
+                actions={[
+                  { label: 'Edit Project', editor: editProjectEditor, icon: Pencil },
+                  { label: 'Delete Project', editor: deleteProjectEditor, icon: Trash2, danger: true }
+                ]}
+                label={project.title}
+                showOnHome
               />
-            </div>
-            <div className="project-body">
-              <p className="project-tag">{project.tag}</p>
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className="tech-list">
-                {project.tech.map((tech) => (
-                  <span key={tech}>{tech}</span>
-                ))}
+              <div className={`project-preview ${project.coverClass || ''}`.trim()}>
+                <img
+                  className={`project-cover ${project.coverClass || ''}`.trim()}
+                  src={project.cover}
+                  alt={`${project.title} cover image`}
+                  loading="lazy"
+                />
               </div>
-              <div className="project-actions">
-                <a className="button compact secondary" href={project.repo || 'https://github.com/gumera123'} target="_blank" rel="noreferrer">
-                  <GitBranch size={17} /> Repository
-                </a>
-                <Link className="button compact ghost" to="/#contact">
-                  <ExternalLink size={17} /> Live Demo
-                </Link>
+              <div className="project-body">
+                <p className="project-tag">{project.tag}</p>
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+                <div className="tech-list">
+                  {project.tech.map((tech) => (
+                    <span key={tech}>{tech}</span>
+                  ))}
+                </div>
+                <div className="project-actions">
+                  {project.repo && (
+                    <a className="button compact secondary" href={project.repo} target="_blank" rel="noreferrer">
+                      <GitBranch size={17} /> Repository
+                    </a>
+                  )}
+                  {project.demo && (
+                    <a className="button compact ghost" href={project.demo} target="_blank" rel="noreferrer">
+                      <ExternalLink size={17} /> Live Demo
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.article>
-        ))}
+            </motion.article>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function Certificates() {
+function Certificates({ content }) {
   const [selectedCertificate, setSelectedCertificate] = useState(null);
+  const { eyebrow, title, copy } = content.sections.certificates;
+  const addCertificateEditor = {
+    title: 'Add certificate',
+    mode: 'certificate-add',
+    value: { title: '' },
+    commit: (edited, current) => ({
+      ...current,
+      certificates: [...current.certificates, { title: edited.title, file: edited.file }]
+    })
+  };
+  const editor = {
+    title: 'Edit Certificates Page',
+    buttonLabel: 'Edit Page Section',
+    value: content.sections.certificates,
+    commit: (edited, current) => ({
+      ...current,
+      sections: { ...current.sections, certificates: edited }
+    })
+  };
 
   useEffect(() => {
     if (!selectedCertificate) {
@@ -582,44 +804,78 @@ function Certificates() {
   return (
     <>
       <section id="certificates" className="section certificates-page">
-        <SectionIntro
-          eyebrow="Certificates"
-          title="Verified learning, technical certifications, and professional development."
-          copy="A collection of certificates, training completions, and professional development achievements."
-        />
+        <SectionIntro eyebrow={eyebrow} title={title} copy={copy} adminEditor={editor} />
+        <div className="certificates-add-toolbar">
+          <AdminEditButton editor={addCertificateEditor} icon={Plus} showOnHome>Add Certificate</AdminEditButton>
+        </div>
         <div className="project-grid">
-          {certificates.map((certificate, index) => (
-            <motion.article
-              className="project-card certificate-card"
-              key={certificate.title}
-              initial={{ opacity: 0, y: 26 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08 }}
-            >
-              <div className="project-preview certificate-preview">
-                <img
-                  className="project-cover certificate-cover"
-                  src={certificate.file}
-                  alt={certificate.title}
-                  loading="lazy"
+          {content.certificates.map((certificate, index) => {
+            const editCertificateEditor = {
+              title: `Edit ${certificate.title}`,
+              mode: 'certificate-edit',
+              value: { ...certificate },
+              commit: (edited, current) => ({
+                ...current,
+                certificates: current.certificates.map((item, itemIndex) => (
+                  itemIndex === index ? edited : item
+                ))
+              })
+            };
+            const deleteCertificateEditor = {
+              title: `Delete ${certificate.title}?`,
+              mode: 'delete',
+              confirmationText: 'This will permanently delete this certificate.',
+              value: {},
+              commit: (_edited, current) => ({
+                ...current,
+                certificates: current.certificates.filter((_item, itemIndex) => itemIndex !== index)
+              })
+            };
+            return (
+              <motion.article
+                className="project-card certificate-card"
+                key={`${certificate.title}-${index}`}
+                initial={{ opacity: 0, y: 26 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 }}
+              >
+                <AdminCardMenu
+                  actions={[
+                    { label: 'Edit Certificate', editor: editCertificateEditor, icon: Pencil },
+                    { label: 'Delete Certificate', editor: deleteCertificateEditor, icon: Trash2, danger: true }
+                  ]}
+                  label={certificate.title}
+                  showOnHome
                 />
-              </div>
-              <div className="project-body">
-                <p className="project-tag">Certificate</p>
-                <h3>{certificate.title.replace(/\.[^/.]+$/, '')}</h3>
-                <div className="project-actions">
-                  <button
-                    className="button compact secondary"
-                    type="button"
-                    onClick={() => setSelectedCertificate(certificate)}
-                  >
-                    <ExternalLink size={17} /> View Certificate
-                  </button>
+                <div className="project-preview certificate-preview">
+                  {isPdfAsset(certificate.file) ? (
+                    <div className="certificate-pdf-card"><ScrollText size={32} /> PDF certificate</div>
+                  ) : (
+                    <img
+                      className="project-cover certificate-cover"
+                      src={certificate.file}
+                      alt={certificate.title}
+                      loading="lazy"
+                    />
+                  )}
                 </div>
-              </div>
-            </motion.article>
-          ))}
+                <div className="project-body">
+                  <p className="project-tag">Certificate</p>
+                  <h3>{certificate.title.replace(/\.[^/.]+$/, '')}</h3>
+                  <div className="project-actions">
+                    <button
+                      className="button compact secondary"
+                      type="button"
+                      onClick={() => setSelectedCertificate(certificate)}
+                    >
+                      <ExternalLink size={17} /> View Certificate
+                    </button>
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
         </div>
       </section>
       <AnimatePresence>
@@ -660,7 +916,11 @@ function Certificates() {
               </div>
               <div className="certificate-dialog-content">
                 <div className="certificate-image-frame">
-                  <img src={selectedCertificate.file} alt={selectedCertificate.title} />
+                  {isPdfAsset(selectedCertificate.file) ? (
+                    <iframe src={selectedCertificate.file} title={selectedCertificate.title} />
+                  ) : (
+                    <img src={selectedCertificate.file} alt={selectedCertificate.title} />
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -671,28 +931,30 @@ function Certificates() {
   );
 }
 
-function Experience() {
+function Experience({ content }) {
+  const { eyebrow, title } = content.sections.experience;
+  const editor = {
+    title: 'Experience section',
+    buttonLabel: 'Edit Experience',
+    value: { section: content.sections.experience, experience: content.experience },
+    commit: (edited, current) => ({
+      ...current,
+      sections: { ...current.sections, experience: edited.section },
+      experience: edited.experience
+    })
+  };
   return (
     <section id="experience" className="section alt-section experience-page">
-      <SectionIntro eyebrow="Experience" title="Practical responsibility across technical and operational environments." />
+      <SectionIntro eyebrow={eyebrow} title={title} adminEditor={editor} />
       <div className="experience-grid">
-        <ExperienceCard
-          icon={BriefcaseBusiness}
-          title="Technical Support Experience"
-          items={[
-            'Provided technical troubleshooting and IT support assistance',
-            'Handled system debugging, setup, and configuration tasks',
-            'Assisted with practical problem-solving in real-world technical environments'
-          ]}
-        />
-        <ExperienceCard
-          icon={CheckCircle2}
-          title="Operations & Management Experience"
-          items={[
-            'Managed boarding house responsibilities and daily operations',
-            'Demonstrated adaptability, organization, and responsibility while balancing academic and technical work'
-          ]}
-        />
+        {content.experience.map((entry, index) => (
+          <ExperienceCard
+            key={`${entry.title}-${index}`}
+            icon={experienceIcons[entry.icon] || BriefcaseBusiness}
+            title={entry.title}
+            items={entry.items}
+          />
+        ))}
       </div>
     </section>
   );
@@ -712,12 +974,23 @@ function ExperienceCard({ icon: Icon, title, items }) {
   );
 }
 
-function Goals() {
+function Goals({ content }) {
+  const { eyebrow, title } = content.sections.goals;
+  const editor = {
+    title: 'Goals section',
+    buttonLabel: 'Edit Goals',
+    value: { section: content.sections.goals, goals: content.goals },
+    commit: (edited, current) => ({
+      ...current,
+      sections: { ...current.sections, goals: edited.section },
+      goals: edited.goals
+    })
+  };
   return (
     <section id="goals" className="section goals-page">
-      <SectionIntro eyebrow="Goals" title="Professional roadmap for the next stage of growth." />
+      <SectionIntro eyebrow={eyebrow} title={title} adminEditor={editor} />
       <div className="timeline">
-        {goals.map((goal, index) => (
+        {content.goals.map((goal, index) => (
           <motion.div
             className="timeline-item"
             key={goal}
@@ -735,23 +1008,40 @@ function Goals() {
   );
 }
 
-function Contact() {
+function Contact({ content }) {
+  const { eyebrow, title, copy } = content.sections.contact;
+  const editor = {
+    title: 'Contact section',
+    buttonLabel: 'Edit Contact',
+    value: {
+      section: content.sections.contact,
+      contact: content.contact,
+      resume: content.resume,
+      footer: content.footer
+    },
+    commit: (edited, current) => ({
+      ...current,
+      sections: { ...current.sections, contact: edited.section },
+      contact: edited.contact,
+      resume: edited.resume,
+      footer: edited.footer
+    })
+  };
   return (
     <section id="contact" className="section contact-section contact-page">
-      <SectionIntro
-        eyebrow="Contact"
-        title="Available for full-stack development opportunities."
-        copy="For recruiter inquiries, project conversations, or technical opportunities, reach out directly."
-      />
+      <SectionIntro eyebrow={eyebrow} title={title} copy={copy} adminEditor={editor} />
       <div className="contact-grid">
         <div className="contact-panel">
-          <a href="mailto:gumerajorry00@gmail.com"><Mail size={18} /> gumerajorry00@gmail.com</a>
-          <a href="tel:+639383144573"><Phone size={18} /> 0938 314 4573</a>
-          <a href="https://github.com/gumera123" target="_blank" rel="noreferrer"><GitBranch size={18} /> github.com/gumera123</a>
-          <a href="https://www.facebook.com/jorry.Eredera" target="_blank" rel="noreferrer"><ExternalLink size={18} /> facebook.com/jorry.Eredera</a>
-          <a href="https://www.linkedin.com/in/jorry-gumera-3a56b4385/?isSelfProfile=true" target="_blank" rel="noreferrer"><ExternalLink size={18} /> linkedin.com/in/jorry-gumera</a>
-          <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"><ExternalLink size={18} /> instagram.com</a>
-          <a className="button primary" href="/My_Resume.pdf" download>
+          {content.contact.map((entry, index) => {
+            const Icon = contactIcons[entry.icon] || ExternalLink;
+            const isExternal = /^https?:\/\//i.test(entry.href);
+            return (
+              <a href={entry.href} key={`${entry.href}-${index}`} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noreferrer' : undefined}>
+                <Icon size={18} /> {entry.label}
+              </a>
+            );
+          })}
+          <a className="button primary" href={content.resume} download>
             Download Resume <Download size={18} />
           </a>
         </div>
@@ -760,11 +1050,11 @@ function Contact() {
   );
 }
 
-function Footer() {
+function Footer({ content }) {
   return (
     <footer className="footer">
       <p></p>
-      <span>© 2026 Jorry E. Gumera. Full-Stack Developer.</span>
+      <span>{content.footer}</span>
     </footer>
   );
 }
@@ -773,6 +1063,8 @@ export default App;
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <App />
+    <AdminAuthProvider>
+      <App />
+    </AdminAuthProvider>
   </BrowserRouter>
 );
