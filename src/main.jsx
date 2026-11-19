@@ -255,11 +255,41 @@ function Loader() {
 
 function Navbar({ content, theme, menuOpen, onMenu, onCloseMenu, onTheme }) {
   const { pathname, hash } = useLocation();
+  const [visibleSection, setVisibleSection] = useState('');
+
+  useEffect(() => {
+    if (pathname !== '/') {
+      setVisibleSection('');
+      return undefined;
+    }
+
+    const sections = navItems
+      .map((item) => document.getElementById(
+        item.href === '/' ? 'home' : item.href.split('#')[1]
+      ))
+      .filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+      const current = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((first, second) => first.boundingClientRect.top - second.boundingClientRect.top)[0];
+      if (current) setVisibleSection(current.target.id);
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [pathname]);
+
   const isCurrentItem = (item) => {
-    if (item.href === '/') return pathname === '/' && !hash;
+    if (item.href === '/') {
+      return pathname === '/' && (
+        visibleSection === 'home' || (!visibleSection && !hash)
+      );
+    }
     const section = item.href.split('#')[1];
     return Boolean(section) && (
-      (pathname === '/' && hash === `#${section}`) ||
+      (pathname === '/' && (
+        visibleSection ? visibleSection === section : hash === `#${section}`
+      )) ||
       pathname === `/${section}`
     );
   };
@@ -936,33 +966,77 @@ function Experience({ content }) {
   const editor = {
     title: 'Experience section',
     buttonLabel: 'Edit Experience',
-    value: { section: content.sections.experience, experience: content.experience },
+    value: {
+      eyebrow: content.sections.experience.eyebrow,
+      title: content.sections.experience.title
+    },
     commit: (edited, current) => ({
       ...current,
-      sections: { ...current.sections, experience: edited.section },
-      experience: edited.experience
+      sections: {
+        ...current.sections,
+        experience: { ...current.sections.experience, ...edited }
+      }
+    })
+  };
+  const addExperienceEditor = {
+    title: 'Add experience',
+    value: { title: '', items: [''] },
+    commit: (edited, current) => ({
+      ...current,
+      experience: [...current.experience, { icon: 'briefcase', ...edited }]
     })
   };
   return (
     <section id="experience" className="section alt-section experience-page">
       <SectionIntro eyebrow={eyebrow} title={title} adminEditor={editor} />
+      <div className="experience-add-toolbar">
+        <AdminEditButton editor={addExperienceEditor} icon={Plus} showOnHome>Add Experience</AdminEditButton>
+      </div>
       <div className="experience-grid">
-        {content.experience.map((entry, index) => (
-          <ExperienceCard
-            key={`${entry.title}-${index}`}
-            icon={experienceIcons[entry.icon] || BriefcaseBusiness}
-            title={entry.title}
-            items={entry.items}
-          />
-        ))}
+        {content.experience.map((entry, index) => {
+          const editExperienceEditor = {
+            title: `Edit ${entry.title} card`,
+            value: { title: entry.title, items: [...entry.items] },
+            commit: (edited, current) => ({
+              ...current,
+              experience: current.experience.map((item, itemIndex) => (
+                itemIndex === index ? { ...item, ...edited } : item
+              ))
+            })
+          };
+          const deleteExperienceEditor = {
+            title: `Delete ${entry.title}?`,
+            mode: 'delete',
+            confirmationText: 'This will permanently delete this experience entry from your portfolio.',
+            value: {},
+            commit: (_edited, current) => ({
+              ...current,
+              experience: current.experience.filter((_item, itemIndex) => itemIndex !== index)
+            })
+          };
+          const actions = [
+            { label: 'Edit Card', editor: editExperienceEditor, icon: Pencil },
+            { label: 'Delete Experience', editor: deleteExperienceEditor, icon: Trash2, danger: true }
+          ];
+          return (
+            <ExperienceCard
+              key={`${entry.title}-${index}`}
+              icon={experienceIcons[entry.icon] || BriefcaseBusiness}
+              title={entry.title}
+              items={entry.items}
+              actions={actions}
+            />
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function ExperienceCard({ icon: Icon, title, items }) {
+function ExperienceCard({ icon: Icon, title, items, actions }) {
   return (
     <motion.article className="glass-panel experience-card" initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
+      <AdminCardMenu actions={actions} label={title} showOnHome />
       <Icon />
       <h3>{title}</h3>
       <ul>

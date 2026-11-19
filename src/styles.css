@@ -241,7 +241,8 @@ textarea {
 .nav-links a:nth-child(7) { animation-delay: 270ms; }
 .nav-links a:nth-child(8) { animation-delay: 315ms; }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links a.active {
   color: var(--nav-text);
   background: var(--nav-active);
   font-weight: 700;
@@ -265,11 +266,13 @@ textarea {
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.nav-links a:hover svg {
+.nav-links a:hover svg,
+.nav-links a.active svg {
   transform: scale(1.08);
 }
 
 .nav-links a:hover svg,
+.nav-links a.active svg,
 .nav-links a:focus-visible svg,
 .mobile-menu a:hover svg {
   color: var(--nav-accent);
@@ -811,6 +814,14 @@ h3 {
   position: relative;
 }
 
+.experience-card {
+  position: relative;
+}
+
+.experience-card:focus-within {
+  z-index: 5;
+}
+
 .about-card-toolbar {
   display: flex;
   align-items: center;
@@ -848,14 +859,16 @@ h3 {
 }
 
 .projects-add-toolbar,
-.certificates-add-toolbar {
+.certificates-add-toolbar,
+.experience-add-toolbar {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 12px;
 }
 
 .projects-add-toolbar .admin-inline-button,
-.certificates-add-toolbar .admin-inline-button {
+.certificates-add-toolbar .admin-inline-button,
+.experience-add-toolbar .admin-inline-button {
   margin: 0;
 }
 
@@ -1064,20 +1077,16 @@ h3 {
 
 .project-cover.cover-nsync {
   background: var(--bg-soft);
-  padding: 12px clamp(24px, 4vw, 56px);
   object-position: center;
 }
 
 .project-cover.cover-higa {
   background: #0F0E0A;
-  object-fit: cover;
-  object-position: center top;
 }
 
 .project-cover.cover-sui {
   background: #0F0E0A;
-  object-fit: cover;
-  object-position: center top;
+  object-position: center;
 }
 
 .project-cover.cover-cot {
@@ -2245,7 +2254,8 @@ h3 {
     font-weight: 500;
   }
 
-  .mobile-menu a:hover {
+  .mobile-menu a:hover,
+  .mobile-menu a.active {
     color: var(--nav-text);
     background: var(--nav-active);
     box-shadow: inset 3px 0 var(--nav-accent);
@@ -2397,16 +2407,6 @@ h3 {
 
   .project-preview {
     height: 205px;
-  }
-
-  .project-preview.cover-sui {
-    height: auto;
-  }
-
-  .project-preview.cover-sui .project-cover.cover-sui {
-    height: auto;
-    object-fit: contain;
-    object-position: center;
   }
 
   .footer {
