@@ -10,6 +10,13 @@ This portfolio is a fully static site — no server component.
 - **App router:** `BrowserRouter` — clean URLs, no `#` in the address bar.
 - **Custom domain:** add the domain in the Cloudflare Pages dashboard (Workers & Pages → your project → Custom domains), then point your registrar's DNS to Cloudflare.
 
+## Vercel
+
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+- **SPA routing:** handled by the root `vercel.json` rewrite, so deep links such as `/admin` serve the app and are resolved by `BrowserRouter`.
+- **Admin sign-in:** set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project’s Environment Variables, then redeploy.
+
 ## Local development
 
 ```bash
